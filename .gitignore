@@ -35,3 +35,6 @@ build/
 testing-browser/
 
 browser.sh
+
+# H2 db
+data
