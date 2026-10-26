@@ -8,9 +8,14 @@ import com.achhecode.jobpilot.application.dto.JobApplicationResponse;
 import com.achhecode.jobpilot.application.model.ApplicationStatus;
 import com.achhecode.jobpilot.application.model.JobApplication;
 import com.achhecode.jobpilot.application.repository.JobApplicationRepository;
+import com.achhecode.jobpilot.automation.context.JobAutomationContext;
 import com.achhecode.jobpilot.automation.model.AutomationResult;
+import com.achhecode.jobpilot.automation.service.JobApplicationAutomationService;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.achhecode.jobpilot.candidate.entity.CandidateProfile;
+import com.achhecode.jobpilot.candidate.mapper.CandidateProfileMapper;
 import com.achhecode.jobpilot.candidate.repository.CandidateProfileRepository;
+import com.achhecode.playwright.browser.BrowserPageResolver;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +25,9 @@ public class JobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
     private final CandidateProfileRepository candidateProfileRepository;
+    private final JobApplicationAutomationService jobApplicationAutomationService;
+
+    private final BrowserPageResolver browserPageResolver;
 
     @Transactional
     public JobApplicationResponse create(JobApplicationRequest request) {
@@ -45,6 +53,18 @@ public class JobApplicationService {
                 "",
                 ApplicationStatus.IN_PROGRESS,
                 "");
+
+        JobAutomationContext jobAutomationContext = new JobAutomationContext(
+                browserPageResolver.findOrOpenPage(request.company().getUrl()));
+
+        CandidateProfileResponse candidateProfileResponse = CandidateProfileMapper.toResponse(candidateProfile);
+
+        if (request.submitAutomatically()) {
+            jobApplicationAutomationService.apply(jobAutomationContext, request, candidateProfileResponse);
+            newJobApplication.setStatus(ApplicationStatus.SUBMITTED);
+        } else {
+            newJobApplication.setStatus(ApplicationStatus.FAILED);
+        }
 
         JobApplication savedApplication = jobApplicationRepository.save(newJobApplication);
 

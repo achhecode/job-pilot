@@ -32,3 +32,10 @@ logging:
     org.hibernate.orm.schema: DEBUG
     org.springframework.orm.jpa: DEBUG
     org.springframework.boot.autoconfigure.orm.jpa: DEBUG
+
+
+playwright:
+  browser:
+    mode: ATTACHED
+    host: 127.0.0.1
+    port: 9222

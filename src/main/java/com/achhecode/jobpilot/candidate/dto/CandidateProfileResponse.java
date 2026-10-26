@@ -7,6 +7,9 @@ import java.time.LocalDate;
 import com.achhecode.jobpilot.common.enums.Gender;
 import com.achhecode.jobpilot.common.enums.ProfileStatus;
 
+import lombok.Builder;
+
+@Builder
 public record CandidateProfileResponse(
         Long id,
         String username,

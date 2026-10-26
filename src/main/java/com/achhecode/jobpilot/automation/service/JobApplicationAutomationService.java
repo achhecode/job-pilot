@@ -28,12 +28,11 @@ public class JobApplicationAutomationService {
 
     public AutomationResult apply(
             JobAutomationContext context,
-            JobApplicationRequest request
+            JobApplicationRequest request,
+            CandidateProfileResponse candidateProfileResponse
     ) {
-        String jobId = normalize(request.jobId());
+        String jobId = normalize(request.company().getId());
         JobApplicationStrategy strategy = strategies.get(jobId);
-
-        CandidateProfileResponse candidateProfileResponse = new CandidateProfileResponse();
 
         if (strategy == null) {
             throw new UnsupportedCompanyException(request.jobId());

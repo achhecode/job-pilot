@@ -1,6 +1,7 @@
 package com.achhecode.jobpilot.company;
 
 public enum CompanyCareerSite {
+    NAUKRI("Naukri", "https://www.naukri.com/"),
     CAPGEMINI("Capgemini", "https://www.capgemini.com/in-en/careers/"),
     INFOSYS("Infosys", "https://career.infosys.com/joblist");
 
@@ -12,7 +13,15 @@ public enum CompanyCareerSite {
         this.url = url;
     }
 
-    public String getId() { return name(); }
-    public String getTitle() { return title; }
-    public String getUrl() { return url; }
+    public String getId() {
+        return name();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }
