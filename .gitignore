@@ -29,3 +29,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+
+**/testing
+
+testing-browser/
+
+browser.sh
