@@ -1,13 +1,15 @@
 package com.achhecode.jobpilot.automation.strategy.infosys;
 
+import org.springframework.stereotype.Component;
+
 import com.achhecode.jobpilot.application.dto.JobApplicationRequest;
 import com.achhecode.jobpilot.automation.context.JobAutomationContext;
 import com.achhecode.jobpilot.automation.model.AutomationResult;
 import com.achhecode.jobpilot.automation.pages.infosys.InfosysApplicationPage;
 import com.achhecode.jobpilot.automation.pages.infosys.InfosysJobSearchPage;
 import com.achhecode.jobpilot.automation.strategy.JobApplicationStrategy;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.achhecode.jobpilot.company.CompanyCareerSite;
-import org.springframework.stereotype.Component;
 
 @Component
 public class InfosysApplicationStrategy implements JobApplicationStrategy {
@@ -19,8 +21,8 @@ public class InfosysApplicationStrategy implements JobApplicationStrategy {
     @Override
     public AutomationResult apply(
             JobAutomationContext context,
-            JobApplicationRequest request
-    ) {
+            JobApplicationRequest request,
+            CandidateProfileResponse candidate) {
         String selectedJobUrl = null;
 
         try {
@@ -30,12 +32,12 @@ public class InfosysApplicationStrategy implements JobApplicationStrategy {
 
             if (request.jobUrl() == null || request.jobUrl().isBlank()) {
                 searchPage.open(CompanyCareerSite.INFOSYS.getUrl());
-                searchPage.searchJobs(request.keywords(), request.location());
+                searchPage.searchJobs(candidate.keywords(), candidate.countryCode());
             }
 
-            selectedJobUrl = searchPage.selectJob(request.jobUrl(), request.jobTitle());
+            selectedJobUrl = searchPage.selectJob(request.jobUrl());
             searchPage.clickApply();
-            applicationPage.fillApplicantDetails(request);
+            applicationPage.fillApplicantDetails(candidate);
 
             if (!applicationPage.isReadyForReview()) {
                 return AutomationResult.requiresReview(

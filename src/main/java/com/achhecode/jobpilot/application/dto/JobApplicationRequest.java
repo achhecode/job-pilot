@@ -1,22 +1,30 @@
 package com.achhecode.jobpilot.application.dto;
 
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
-/**
- * Inputs for one job search/application attempt.
- * In production, consider storing profile/resume data separately from each attempt.
- */
+import com.achhecode.jobpilot.company.CompanyCareerSite;
+
 public record JobApplicationRequest(
-        @NotBlank String companyId,
-        @NotBlank String keywords,
-        String location,
+        String jobId,
         String jobUrl,
-        String jobTitle,
-        @NotBlank @Size(max = 200) String fullName,
-        @NotBlank @Email String email,
-        String phone,
-        String resumePath,
-        boolean submitAutomatically
-) {}
+
+        @NotNull CompanyCareerSite company,
+
+        @NotBlank String candidateUsername,
+
+        Boolean submitAutomatically) {
+
+    public JobApplicationRequest {
+        if (submitAutomatically == null) {
+            submitAutomatically = true;
+        }
+    }
+
+    @AssertTrue(message = "Either companyId or jobUrl must be provided")
+    public boolean isCompanyIdOrJobUrlProvided() {
+        return (jobId != null && !jobId.isBlank())
+                || (jobUrl != null && !jobUrl.isBlank());
+    }
+}

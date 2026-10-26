@@ -3,7 +3,7 @@ package com.achhecode.jobpilot.automation.pages.infosys;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
-import com.achhecode.jobpilot.application.dto.JobApplicationRequest;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -19,13 +19,14 @@ public class InfosysApplicationPage {
         this.page = page;
     }
 
-    public void fillApplicantDetails(JobApplicationRequest request) {
-        // TODO Verify field names/selectors on the current Infosys application form.
-        fillRequired("input[name='name']", request.fullName());
+    public void fillApplicantDetails(CandidateProfileResponse request) {
+        // TODO Verify field names/selectors on the current Capgemini application form.
+        fillRequired("input[name='firstName']", firstName(request.fullName()));
+        fillRequired("input[name='lastName']", lastName(request.fullName()));
         fillRequired("input[type='email']", request.email());
 
-        if (request.phone() != null && !request.phone().isBlank()) {
-            fillIfPresent("input[type='tel']", request.phone());
+        if (request.phoneNumber() != null && !request.phoneNumber().isBlank()) {
+            fillIfPresent("input[type='tel']", request.phoneNumber());
         }
         uploadResumeIfPresent(request.resumePath());
     }
@@ -68,5 +69,17 @@ public class InfosysApplicationPage {
         Locator locator = page.locator(selector).first();
         if (locator.count() > 0)
             locator.fill(value);
+    }
+
+    private String firstName(String fullName) {
+        String value = fullName.trim();
+        int index = value.indexOf(' ');
+        return index < 0 ? value : value.substring(0, index);
+    }
+
+    private String lastName(String fullName) {
+        String value = fullName.trim();
+        int index = value.indexOf(' ');
+        return index < 0 ? "" : value.substring(index + 1);
     }
 }

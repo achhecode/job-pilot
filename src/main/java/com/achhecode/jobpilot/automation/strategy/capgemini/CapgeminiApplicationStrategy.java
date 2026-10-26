@@ -6,6 +6,7 @@ import com.achhecode.jobpilot.automation.model.AutomationResult;
 import com.achhecode.jobpilot.automation.pages.capgemini.CapgeminiApplicationPage;
 import com.achhecode.jobpilot.automation.pages.capgemini.CapgeminiJobSearchPage;
 import com.achhecode.jobpilot.automation.strategy.JobApplicationStrategy;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.achhecode.jobpilot.company.CompanyCareerSite;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,8 @@ public class CapgeminiApplicationStrategy implements JobApplicationStrategy {
     @Override
     public AutomationResult apply(
             JobAutomationContext context,
-            JobApplicationRequest request
+            JobApplicationRequest request,
+            CandidateProfileResponse candidate
     ) {
         String selectedJobUrl = null;
 
@@ -30,12 +32,12 @@ public class CapgeminiApplicationStrategy implements JobApplicationStrategy {
 
             if (request.jobUrl() == null || request.jobUrl().isBlank()) {
                 searchPage.open(CompanyCareerSite.CAPGEMINI.getUrl());
-                searchPage.searchJobs(request.keywords(), request.location());
+                searchPage.searchJobs(candidate.keywords(), candidate.countryCode());
             }
 
-            selectedJobUrl = searchPage.selectJob(request.jobUrl(), request.jobTitle());
+            selectedJobUrl = searchPage.selectJob(request.jobUrl());
             searchPage.clickApply();
-            applicationPage.fillApplicantDetails(request);
+            applicationPage.fillApplicantDetails(candidate);
 
             if (!applicationPage.isReadyForReview()) {
                 return AutomationResult.requiresReview(

@@ -2,8 +2,7 @@ package com.achhecode.jobpilot.automation.pages.capgemini;
 
 import java.nio.file.Path;
 import java.util.regex.Pattern;
-
-import com.achhecode.jobpilot.application.dto.JobApplicationRequest;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -19,14 +18,14 @@ public class CapgeminiApplicationPage {
         this.page = page;
     }
 
-    public void fillApplicantDetails(JobApplicationRequest request) {
+    public void fillApplicantDetails(CandidateProfileResponse request) {
         // TODO Verify field names/selectors on the current Capgemini application form.
         fillRequired("input[name='firstName']", firstName(request.fullName()));
         fillRequired("input[name='lastName']", lastName(request.fullName()));
         fillRequired("input[type='email']", request.email());
 
-        if (request.phone() != null && !request.phone().isBlank()) {
-            fillIfPresent("input[type='tel']", request.phone());
+        if (request.phoneNumber() != null && !request.phoneNumber().isBlank()) {
+            fillIfPresent("input[type='tel']", request.phoneNumber());
         }
         uploadResumeIfPresent(request.resumePath());
     }

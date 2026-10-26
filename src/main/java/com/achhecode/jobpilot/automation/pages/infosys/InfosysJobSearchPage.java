@@ -30,7 +30,7 @@ public class InfosysJobSearchPage {
         else throw new IllegalStateException("Configure the Infosys job-search button selector.");
     }
 
-    public String selectJob(String jobUrl, String jobTitle) {
+    public String selectJob(String jobUrl) {
         if (jobUrl != null && !jobUrl.isBlank()) {
             page.navigate(jobUrl);
             return page.url();

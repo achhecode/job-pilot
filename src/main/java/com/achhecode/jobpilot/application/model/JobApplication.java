@@ -1,17 +1,35 @@
 package com.achhecode.jobpilot.application.model;
 
-import jakarta.persistence.*;
 import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "job_applications")
+@Getter
+@Setter
 public class JobApplication {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String candidateUsername;
+
     @Column(nullable = false)
-    private String companyId;
+    private String jobId;
 
     @Column(nullable = false, length = 2048)
     private String jobUrl;
@@ -28,28 +46,36 @@ public class JobApplication {
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    @Column(nullable = false)
     private Instant updatedAt = Instant.now();
 
-    @PreUpdate
-    void preUpdate() { updatedAt = Instant.now(); }
-
-    protected JobApplication() {}
-
-    public JobApplication(String companyId, String jobUrl, String jobTitle) {
-        this.companyId = companyId;
-        this.jobUrl = jobUrl;
-        this.jobTitle = jobTitle;
+    protected JobApplication() {
     }
 
-    public Long getId() { return id; }
-    public String getCompanyId() { return companyId; }
-    public String getJobUrl() { return jobUrl; }
-    public String getJobTitle() { return jobTitle; }
-    public ApplicationStatus getStatus() { return status; }
-    public String getMessage() { return message; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
+    public JobApplication(
+            String candidateUsername,
+            String jobId,
+            String jobUrl,
+            String jobTitle,
+            ApplicationStatus status,
+            String message) {
+        this.candidateUsername = candidateUsername;
+        this.jobId = jobId;
+        this.jobUrl = jobUrl;
+        this.jobTitle = jobTitle;
+        this.status = status;
+        this.message = message;
+    }
 
-    public void setStatus(ApplicationStatus status) { this.status = status; }
-    public void setMessage(String message) { this.message = message; }
+    @PrePersist
+    protected void prePersist() {
+        Instant now = Instant.now();
+        createdAt = now;
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void preUpdate() {
+        updatedAt = Instant.now();
+    }
 }

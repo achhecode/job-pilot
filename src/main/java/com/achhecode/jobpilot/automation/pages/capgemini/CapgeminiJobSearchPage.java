@@ -41,7 +41,7 @@ public class CapgeminiJobSearchPage {
      * Opens a supplied job URL when the caller already selected a listing.
      * If no job URL is supplied, implement listing matching using the live site's DOM.
      */
-    public String selectJob(String jobUrl, String jobTitle) {
+    public String selectJob(String jobUrl) {
         if (jobUrl != null && !jobUrl.isBlank()) {
             page.navigate(jobUrl);
             return page.url();

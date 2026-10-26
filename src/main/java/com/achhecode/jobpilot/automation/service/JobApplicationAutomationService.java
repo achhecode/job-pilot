@@ -5,6 +5,8 @@ import com.achhecode.jobpilot.automation.context.JobAutomationContext;
 import com.achhecode.jobpilot.automation.exception.UnsupportedCompanyException;
 import com.achhecode.jobpilot.automation.model.AutomationResult;
 import com.achhecode.jobpilot.automation.strategy.JobApplicationStrategy;
+import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,14 +30,16 @@ public class JobApplicationAutomationService {
             JobAutomationContext context,
             JobApplicationRequest request
     ) {
-        String companyId = normalize(request.companyId());
-        JobApplicationStrategy strategy = strategies.get(companyId);
+        String jobId = normalize(request.jobId());
+        JobApplicationStrategy strategy = strategies.get(jobId);
+
+        CandidateProfileResponse candidateProfileResponse = new CandidateProfileResponse();
 
         if (strategy == null) {
-            throw new UnsupportedCompanyException(request.companyId());
+            throw new UnsupportedCompanyException(request.jobId());
         }
 
-        return strategy.apply(context, request);
+        return strategy.apply(context, request, candidateProfileResponse);
     }
 
     private static String normalize(String value) {
