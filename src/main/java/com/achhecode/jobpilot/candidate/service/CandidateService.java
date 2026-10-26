@@ -1,6 +1,7 @@
 package com.achhecode.jobpilot.candidate.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +94,8 @@ public class CandidateService {
 
         if (request.skills() != null) {
             List<Long> skillIds = request.skills().stream()
-                    .map(CandidateSkillRequest::skillId)
+                    .filter(Objects::nonNull)
+                    .map(skill -> skill.skillId())
                     .toList();
 
             if (skillIds.stream().distinct().count() != skillIds.size()) {
@@ -118,11 +120,9 @@ public class CandidateService {
             }
         }
 
-        return new CandidateCreateResponse(
-                candidate.getId(),
-                candidate.getUsername(),
-                candidate.getFullName(),
+        return new CandidateCreateResponse(candidate.getId(), candidate.getUsername(), candidate.getFullName(),
                 "Candidate created successfully");
+
     }
 
     private CandidateProfessionalProfile toProfessionalProfile(
