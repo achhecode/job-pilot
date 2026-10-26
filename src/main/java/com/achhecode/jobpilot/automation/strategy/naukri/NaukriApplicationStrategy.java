@@ -6,6 +6,7 @@ import com.achhecode.jobpilot.application.dto.JobApplicationRequest;
 import com.achhecode.jobpilot.automation.context.JobAutomationContext;
 import com.achhecode.jobpilot.automation.model.AutomationResult;
 import com.achhecode.jobpilot.automation.pages.naukri.NaukriHomePage;
+import com.achhecode.jobpilot.automation.pages.naukri.NaukriInboxPage;
 import com.achhecode.jobpilot.automation.pages.naukri.NaukriJobPage;
 import com.achhecode.jobpilot.automation.strategy.JobApplicationStrategy;
 import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
@@ -26,16 +27,19 @@ public class NaukriApplicationStrategy implements JobApplicationStrategy {
 
         StringBuilder selectedJobUrl = new StringBuilder(request.company().getUrl());
 
-        if(!request.jobId().isEmpty()){
+        if (!request.jobId().isEmpty()) {
             selectedJobUrl = selectedJobUrl.append("/").append(request.jobId());
         }
 
         try {
             var page = context.page();
-            var searchPage = new NaukriHomePage(page);
+            var naukriHomePage = new NaukriHomePage(page);
+            var naukriInboxPage = new NaukriInboxPage(page);
             var applicationPage = new NaukriJobPage(page);
 
-            context.page().navigate(selectedJobUrl.toString());
+            // context.page().navigate(selectedJobUrl.toString());
+
+            naukriInboxPage.processUnappliedJobs(2);
 
             if (!request.submitAutomatically()) {
                 return AutomationResult.requiresReview(
