@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.microsoft.playwright.Page;
 
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +124,7 @@ public class NaukriJobProcessor {
     }
 
     private ApplyResult applyToJob(String jobId) {
-        Page details = null;
+        NaukriJobDetailsPage details = null;
         ApplyResult result = ApplyResult.ERROR;
 
         try {
@@ -137,8 +138,8 @@ public class NaukriJobProcessor {
                 return result = ApplyResult.JOB_UNAVAILABLE;
             }
 
-            log.info("Opened: {}", details.url());
-            result = listingPage.apply(details);
+            log.info("Opened: {}", details.getUrl());
+            result = details.apply();
             log.info("Job {} -> {}", jobId, result);
             return result;
 
@@ -148,14 +149,11 @@ public class NaukriJobProcessor {
 
         } finally {
             // Close only after the outcome is verified; keep tabs that need a human.
-            /*
-            TODO -> 
             if (details != null && !result.needsManualReview()) {
-                listingPage.closeTab(details);
+                details.close();
             } else if (details != null) {
-                log.warn("Leaving tab open for manual review: {}", details.url());
+                log.warn("Leaving tab open for manual review: {}", details.getUrl());
             }
-            */
         }
     }
 }

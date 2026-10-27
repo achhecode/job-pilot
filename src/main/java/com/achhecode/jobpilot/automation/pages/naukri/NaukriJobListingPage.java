@@ -26,18 +26,8 @@ public class NaukriJobListingPage {
     private static final String POSTED = "xpath=.//div[contains(@class, 'jobTupleFooter')]/div/span";
     private static final String HIDE_BUTTON = "xpath=.//button[contains(@class, 'jt-btn-reset')][.//i[contains(@class, 'hide')]]";
 
-    // ---------- Job details page selectors (adjust if Naukri changes its DOM)
-    // ----------
-    private static final String APPLY_BUTTON = "//section[@id='job_header']//button[@id='apply-button']";
-    private static final String COMPANY_SITE_BUTTON = "//section[@id='job_header']//button[@id='company-site-button']";
-    private static final String ALREADY_APPLIED = "//section[@id='job_header']//*[@id='already-applied']";
-    private static final String APPLY_SUCCESS = "text=/applied to|successfully applied|application (has been )?(sent|submitted)/i";
-    private static final String QUESTIONNAIRE = "[class*='chatbot_Drawer'], [class*='chatbot_Container']";
-
     private static final int OPTIONAL_ELEMENT_TIMEOUT_MS = 2000;
     private static final int HIDE_CONFIRM_TIMEOUT_MS = 3000;
-    private static final int APPLY_OUTCOME_TIMEOUT_MS = 6000;
-    private static final int POLL_INTERVAL_MS = 250;
 
     private final Page page;
 
@@ -149,13 +139,14 @@ public class NaukriJobListingPage {
         }
     }
 
-    // ======================== JOB DETAILS TAB ========================
+    // ======================== OPEN DETAILS TAB ========================
 
     /**
-     * Opens the job in a new tab. Caller must close the returned page. Returns null
-     * on failure.
+     * Clicks the job title; Naukri opens the job in a NEW TAB, which is wrapped
+     * in its own page object. The caller must close it (details.close()).
+     * Returns null when the job is missing or the tab could not be opened.
      */
-    public Page openJobDetails(String jobId) {
+    public NaukriJobDetailsPage openJobDetails(String jobId) {
         Locator job = findJobById(jobId);
         if (job.count() == 0) {
             log.warn("Cannot open missing job {}", jobId);
@@ -166,12 +157,9 @@ public class NaukriJobListingPage {
         Locator target = title.count() > 0 ? title.first() : job;
 
         try {
-            Page details = page.context().waitForPage(target::click);
-            try {
-                details.waitForLoadState();
-            } catch (TimeoutError e) {
-                log.warn("Load-state wait timed out for job {}; continuing", jobId);
-            }
+            Page newTab = page.context().waitForPage(target::click);
+            NaukriJobDetailsPage details = new NaukriJobDetailsPage(newTab);
+            details.waitUntilLoaded();
             return details;
         } catch (Exception e) {
             log.warn("Could not open details for job {}: {}", jobId, firstLine(e));
@@ -179,73 +167,7 @@ public class NaukriJobListingPage {
         }
     }
 
-    /** Clicks Apply on the details page and reports the VERIFIED outcome. */
-    public ApplyResult apply(Page details) {
-        if (details == null || details.isClosed()) {
-            return ApplyResult.JOB_UNAVAILABLE;
-        }
-
-        // Pre-click checks
-        if (isPresent(details, ALREADY_APPLIED)) {
-            return ApplyResult.ALREADY_APPLIED;
-        }
-        Locator applyButton = details.locator(APPLY_BUTTON);
-
-        if (!isPresent(details, APPLY_BUTTON)) {
-            return isPresent(details, COMPANY_SITE_BUTTON)
-                    ? ApplyResult.EXTERNAL_SITE
-                    : ApplyResult.BUTTON_UNAVAILABLE;
-        }
-
-        try {
-            if (!applyButton.isEnabled()) {
-                log.warn("Apply button disabled on {}", details.url());
-                return ApplyResult.BUTTON_UNAVAILABLE;
-            }
-            applyButton.click();
-        } catch (Exception e) {
-            log.warn("Apply click failed on {}: {}", details.url(), firstLine(e));
-            return ApplyResult.BUTTON_UNAVAILABLE;
-        }
-
-        return waitForApplyOutcome(details);
-    }
-
-    public void closeTab(Page details) {
-        if (details == null || details.isClosed()) {
-            return;
-        }
-        try {
-            details.close();
-        } catch (Exception e) {
-            log.warn("Could not close tab: {}", e.getMessage());
-        }
-    }
-
     // ========================= INTERNALS =========================
-
-    private ApplyResult waitForApplyOutcome(Page details) {
-        long deadline = System.currentTimeMillis() + APPLY_OUTCOME_TIMEOUT_MS;
-
-        while (System.currentTimeMillis() < deadline && !details.isClosed()) {
-            if (isPresent(details, QUESTIONNAIRE)) {
-                return ApplyResult.QUESTIONNAIRE_REQUIRED;
-            }
-            if (isPresent(details, ALREADY_APPLIED) || isPresent(details, APPLY_SUCCESS)) {
-                return ApplyResult.APPLIED;
-            }
-            details.waitForTimeout(POLL_INTERVAL_MS);
-        }
-        return ApplyResult.UNKNOWN;
-    }
-
-    private boolean isPresent(Page p, String selector) {
-        try {
-            return p.locator(selector).count() > 0;
-        } catch (Exception e) {
-            return false; // page navigated/closed mid-check
-        }
-    }
 
     private String text(Locator locator) {
         try {
