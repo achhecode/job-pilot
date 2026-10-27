@@ -5,13 +5,16 @@ import org.springframework.stereotype.Component;
 import com.achhecode.jobpilot.application.dto.JobApplicationRequest;
 import com.achhecode.jobpilot.automation.context.JobAutomationContext;
 import com.achhecode.jobpilot.automation.model.AutomationResult;
-import com.achhecode.jobpilot.automation.pages.naukri.NaukriHomePage;
-import com.achhecode.jobpilot.automation.pages.naukri.NaukriInboxPage;
-import com.achhecode.jobpilot.automation.pages.naukri.NaukriJobPage;
+import com.achhecode.jobpilot.automation.pages.naukri.JobFilter;
+import com.achhecode.jobpilot.automation.pages.naukri.JobProcessingSummary;
+import com.achhecode.jobpilot.automation.pages.naukri.NaukriJobProcessor;
 import com.achhecode.jobpilot.automation.strategy.JobApplicationStrategy;
 import com.achhecode.jobpilot.candidate.dto.CandidateProfileResponse;
 import com.achhecode.jobpilot.company.CompanyCareerSite;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class NaukriApplicationStrategy implements JobApplicationStrategy {
     @Override
@@ -33,24 +36,19 @@ public class NaukriApplicationStrategy implements JobApplicationStrategy {
 
         try {
             var page = context.page();
-            var naukriHomePage = new NaukriHomePage(page);
-            var naukriInboxPage = new NaukriInboxPage(page);
-            var applicationPage = new NaukriJobPage(page);
 
-            // context.page().navigate(selectedJobUrl.toString());
+            // TODO -> Move to job listing page
 
-            naukriInboxPage.processUnappliedJobs(2);
+            JobFilter filter = JobFilter.of(
+                    5, // minExperience : card's MAX experience must be >= 5
+                    10, // minSalaryLpa : card's MAX salary must be > 10 (or "Not disclosed")
+                    7, // maxDaysOld
+                    request.maxJobsToApply(), // maxJobsToInspect (0 = all)
+                    "java"); // any keyword must appear in tags
 
-            if (!request.submitAutomatically()) {
-                return AutomationResult.requiresReview(
-                        "Form filled. Review the application and confirm before final submission.",
-                        selectedJobUrl.toString());
-            }
+            JobProcessingSummary summary = new NaukriJobProcessor(page).process(filter);
 
-            if (applicationPage.isSubmissionConfirmed()) {
-                return AutomationResult.submitted(
-                        "Submission confirmation was detected.", selectedJobUrl.toString());
-            }
+            log.info(summary.toString());
 
             return AutomationResult.requiresReview(
                     "Submit was clicked, but successful submission could not be verified.",
