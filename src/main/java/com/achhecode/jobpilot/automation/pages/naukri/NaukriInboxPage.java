@@ -172,6 +172,7 @@ public class NaukriInboxPage {
      * Does not match:
      * JavaScript, Core JavaScript
      */
+    @SuppressWarnings("null")
     private boolean containsJavaSkill(String skillsText) {
 
         if (skillsText == null || skillsText.isBlank()) {

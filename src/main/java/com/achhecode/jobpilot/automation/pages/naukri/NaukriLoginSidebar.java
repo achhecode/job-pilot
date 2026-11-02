@@ -6,7 +6,7 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class NaukriLoginSidebar {
 
-    private final Page page;
+    // private final Page page;
 
     // Locators
     private final Locator loginLink;
@@ -15,7 +15,7 @@ public class NaukriLoginSidebar {
     private final Locator loginButton;
 
     public NaukriLoginSidebar(Page page) {
-        this.page = page;
+        // this.page = page;
 
         this.loginLink = page.locator("//a[@id='login_Layer']");
 

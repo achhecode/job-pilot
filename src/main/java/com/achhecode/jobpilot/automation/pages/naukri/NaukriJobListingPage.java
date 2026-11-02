@@ -177,6 +177,7 @@ public class NaukriJobListingPage {
         }
     }
 
+    @SuppressWarnings("null")
     private List<String> allTexts(Locator locator) {
         try {
             return locator.allInnerTexts().stream()

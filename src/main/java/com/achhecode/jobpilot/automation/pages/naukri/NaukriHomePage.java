@@ -5,9 +5,9 @@ import com.microsoft.playwright.Page;
 
 public class NaukriHomePage {
 
-    private final Page page;
+    // private final Page page;
 
     public NaukriHomePage(Page page) {
-        this.page = page;
+    //     this.page = page;
     }
 }
