@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Company Career Portal | JobPilot</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --background: #f5f7fb;
+            --text: #1e293b;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            font-family: Inter, system-ui, sans-serif;
+        }
+
+        .navbar {
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .hero {
+            background: linear-gradient(120deg, #312e81, #4f46e5);
+            color: white;
+            border-radius: 18px;
+            padding: 35px;
+        }
+
+        .hero h1 {
+            font-weight: 800;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid #edf0f5;
+        }
+
+        .company-card {
+            background: white;
+            border: 1px solid #e9edf4;
+            border-radius: 14px;
+            padding: 22px;
+            height: 100%;
+            transition: all .2s ease;
+        }
+
+        .company-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(30, 41, 59, .08);
+            border-color: #c7d2fe;
+        }
+
+        .company-icon {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 21px;
+        }
+
+        .company-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .company-id {
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: .5px;
+        }
+
+        .visit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .visit-btn:hover {
+            background: #3730a3;
+            color: white;
+        }
+
+        .search-box {
+            border-radius: 10px;
+            padding: 13px 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: none !important;
+        }
+
+        .section-title {
+            font-weight: 750;
+        }
+
+        #noResults {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar py-3">
+    <div class="container">
+        <a class="navbar-brand brand" href="/career-sites">
+            <i class="bi bi-briefcase-fill"></i>
+            JobPilot
+        </a>
+
+        <span class="text-secondary small">
+            Company Career Directory
+        </span>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <!-- Hero -->
+    <section class="hero mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <span class="badge bg-light text-primary mb-3">
+                    YOUR JOB SEARCH HUB
+                </span>
+
+                <h1>Explore Career Opportunities</h1>
+
+                <p class="mb-0 opacity-75">
+                    All your favorite company career portals in one place.
+                    Find opportunities, explore openings and apply directly.
+                </p>
+            </div>
+
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <i class="bi bi-buildings"
+                   style="font-size: 90px; opacity: .25;"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="company-icon">
+                        <i class="bi bi-buildings"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">
+                            Available Companies
+                        </div>
+                        <h3 class="mb-0 fw-bold"
+                            th:text="${totalCompanies}">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="section-title mb-1">Company Directory</h4>
+            <p class="text-secondary small mb-0">
+                Browse and visit company career websites.
+            </p>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-secondary"></i>
+            </span>
+
+            <input type="text"
+                   id="companySearch"
+                   class="form-control search-box border-start-0"
+                   placeholder="Search companies...">
+        </div>
+    </div>
+
+    <!-- Company Cards -->
+    <div class="row g-3" id="companyContainer">
+
+        <div class="col-xl-3 col-lg-4 col-md-6 company-item"
+             th:each="company : ${companies}"
+             th:attr="data-name=${company.title},
+                      data-id=${company.id}">
+
+            <div class="company-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="company-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+
+                    <div class="overflow-hidden">
+                        <h6 class="company-name"
+                            th:text="${company.title}">
+                            Company Name
+                        </h6>
+
+                        <span class="company-id"
+                              th:text="${company.id}">
+                            COMPANY_ID
+                        </span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <span class="text-secondary small">
+                        <i class="bi bi-globe2"></i>
+                        Career Portal
+                    </span>
+
+                    <a class="visit-btn"
+                       th:href="${company.url}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        Visit Careers
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- No Results -->
+    <div id="noResults" class="text-center py-5">
+        <i class="bi bi-search text-secondary"
+           style="font-size: 40px;"></i>
+
+        <h5 class="mt-3">No companies found</h5>
+
+        <p class="text-secondary">
+            Try searching with another company name.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-secondary small py-4 mt-4">
+        JobPilot &copy; <span th:text="${#dates.year(#dates.createNow())}"></span>
+        | Your Career Search Companion
+    </footer>
+
+</div>
+
+<script>
+    const searchInput = document.getElementById('companySearch');
+    const companyItems = document.querySelectorAll('.company-item');
+    const noResults = document.getElementById('noResults');
+
+    searchInput.addEventListener('input', function () {
+        const searchValue = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        companyItems.forEach(item => {
+            const name = item.dataset.name.toLowerCase();
+            const id = item.dataset.id.toLowerCase();
+
+            const matches = name.includes(searchValue)
+                || id.includes(searchValue);
+
+            item.style.display = matches ? '' : 'none';
+
+            if (matches) visibleCount++;
+        });
+
+        noResults.style.display =
+            visibleCount === 0 ? 'block' : 'none';
+    });
+</script>
+
+</body>
+</html>
